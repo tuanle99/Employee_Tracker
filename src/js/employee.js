@@ -1,7 +1,6 @@
 const inquirer = require("inquirer");
 const connection = require("../../config/connection");
 const cTable = require("console.table");
-const role = require("./role");
 
 async function get_employee() {
   return new Promise((resolve, reject) => {
@@ -133,15 +132,38 @@ async function update_employee(
 }
 
 async function add_employee_helper(first_name, last_name, role_id, manager_id) {
+  if (manager_id != "NULL") {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        "INSERT INTO employee (`first_name`, `last_name`, `role_id`, `manager_id`) VALUES (?,?,?,?)",
+        [first_name, last_name, role_id, manager_id],
+        (err, res) => {
+          if (err) reject(err);
+          resolve(res);
+        }
+      );
+    });
+  } else {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        "INSERT INTO employee (`first_name`, `last_name`, `role_id`) VALUES (?,?,?)",
+        [first_name, last_name, role_id],
+        (err, res) => {
+          if (err) reject(err);
+          resolve(res);
+        }
+      );
+    });
+  }
+}
+
+async function remove_employee_helper(employee_id) {
   return new Promise((resolve, reject) => {
-    connection.query(
-      "INSERT INTO employee (`first_name`, `last_name`, `role_id`, `manager_id`) VALUES (?,?,?,?)",
-      [first_name, last_name, role_id, manager_id],
+    connection.query(`DELETE FROM employee where id = ${employee_id}`),
       (err, res) => {
         if (err) reject(err);
-        resolve(`${first_name} is added to employee database.`);
-      }
-    );
+        resolve(res);
+      };
   });
 }
 
@@ -193,11 +215,12 @@ module.exports = {
   //remove employee
   remove_employee: async function remove_employee() {
     const employee_list = await get_employee();
-    const new_employee_list = await generate_question(
+    const remove_employee = await generate_question(
       "Which employee do you want to remove? ",
       employee_list
     );
-    console.log(new_employee_list);
+    const remove = remove_employee_helper(remove_employee);
+    console.log("sucess");
   },
   update_employee_role: async function update_employee_role() {
     const employee_list = await get_employee();

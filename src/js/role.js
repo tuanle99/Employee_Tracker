@@ -1,7 +1,8 @@
 const connection = require("../../config/connection");
 const inquirer = require("inquirer");
+const cTable = require("console.table");
 
-async function view_role() {
+async function get_role() {
   return new Promise((resolve, reject) => {
     connection.query(`SELECT * FROM role`, (err, res) => {
       if (err) reject(err);
@@ -19,14 +20,20 @@ async function get_department_list() {
   });
 }
 
-async function generate_question(list) {
-  const new_list = [];
+async function generate_question(message, list) {
+  let new_list = [];
   for (var i = 0; i < list.length; i++) {
-    new_list.push(list[i].name);
+    if (message === "Which department do you choose?") {
+      new_list.push(list[i].name);
+    }
+    if (message === "Choose Role") {
+      var o = { value: list[i].id, name: list[i].title };
+      new_list.push(o);
+    }
   }
   const question = {
     type: "list",
-    message: "Which department do you choose?",
+    message: message,
     name: "answer",
     choices: new_list,
   };
@@ -74,16 +81,27 @@ async function add_role_helper(title, salary, department_id) {
   });
 }
 
+async function remove_role_helper(role_id) {
+  return new Promise((resolve, reject) => {
+    connection.query(`DELETE FROM role WHERE id = ${role_id}`),
+      (err, res) => {
+        if (err) reject(err);
+        resolve(res);
+      };
+  });
+}
+
 module.exports = {
-  view_role: async function () {
-    console.clear();
-    const role = await view_role();
+  view_role: async function view_role() {
+    const role = await get_role();
     console.table(role);
   },
   add_role: async function add_role() {
-    console.clear();
     const department_list = await get_department_list();
-    const department_name = await generate_question(department_list);
+    const department_name = await generate_question(
+      "Which department do you choose?",
+      department_list
+    );
     const department_id = await get_query(
       "department",
       "name",
@@ -96,5 +114,10 @@ module.exports = {
       role_add.salary,
       department_id[0].id
     );
+  },
+  remove_role: async function remove_role() {
+    const role_list = await get_role();
+    const role_id = await generate_question("Choose Role", role_list);
+    const remove = remove_role_helper(role_id);
   },
 };

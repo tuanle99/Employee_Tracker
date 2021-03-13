@@ -11,14 +11,14 @@ const main_questions = {
   message: "What would you like to do? ",
   name: "choices",
   choices: [
-    "Add Employee",
-    "Add Department",
-    "Add Roles",
     "View All Employees",
     "View All Employees By Department",
     "View All Employees By Manager",
     "View All Roles",
     "View All Department",
+    "Add Employee",
+    "Add Roles",
+    "Add Department",
     "Update Employee Roles",
     "Update Employee Manager",
     "Remove Employee",
@@ -31,7 +31,7 @@ const main_questions = {
 module.exports = {
   ask_questions: async function ask_questions() {
     const answer = await inquirer.prompt(main_questions);
-
+    console.clear();
     switch (answer.choices) {
       case "Add Employee":
         await employee.add_employee();
@@ -64,12 +64,13 @@ module.exports = {
         await employee.update_employee_manager();
         break;
       case "Remove Employee":
-        employee.remove_employee();
-        //unfinish
+        await employee.remove_employee();
         break;
       case "Remove Role":
+        await role.remove_role();
         break;
       case "Remove Department":
+        await department.remove_department();
         break;
     }
     if (answer.choices != "Exit") {

@@ -16,17 +16,18 @@ create table role (
     title varchar(30),
     salary decimal,
     department_id int,
-    foreign key(department_id) references department(id)
+    foreign key(department_id) references department(id) on delete cascade
 );
 drop table if exists employee;
 create table employee (
-	id int auto_increment primary key,
+	id int auto_increment,
 	first_name varchar(30),
     last_name varchar(30),
     role_id int ,
     manager_id int default null,
-    foreign key(role_id) references role(id),
-    foreign key(manager_id) references employee(id)
+    primary key (id),
+    foreign key(role_id) references role(id) on delete cascade,
+    foreign key(manager_id) references employee(id) on delete cascade
 );
 
 use employee_tracker;

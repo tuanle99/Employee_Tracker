@@ -11,14 +11,19 @@ async function get_department_list() {
   });
 }
 
-async function generate_question(list) {
+async function generate_question(message, list) {
   const new_list = [];
   for (var i = 0; i < list.length; i++) {
-    new_list.push(list[i].name);
+    if (message === "Which department do you choose?") {
+      new_list.push(list[i].name);
+    } else if (message === "Choose Department") {
+      var o = { value: list[i].id, name: list[i].name };
+      new_list.push(o);
+    }
   }
   const question = {
     type: "list",
-    message: "Which department do you choose?",
+    message: message,
     name: "answer",
     choices: new_list,
   };
@@ -46,13 +51,25 @@ const add_department_questions = {
   name: "department_name",
 };
 
+async function remove_department_helper(department_id) {
+  return new Promise((resolve, reject) => {
+    connection.query(`DELETE FROM department where id = ${department_id}`),
+      (err, res) => {
+        if (err) reject(err);
+        resolve(res);
+      };
+  });
+}
+
 module.exports = {
   view_employee_by_department: async function view_employee_by_department() {
     const department_list = await get_department_list();
-    const department = await generate_question(department_list);
-    //console is not waiting for generate question
+    const department = await generate_question(
+      "Choose Department",
+      department_list
+    );
 
-    const department_data = await get_query("department", "name", department);
+    const department_data = await get_query("department", "id", department);
     const role_data = await get_query(
       "role",
       "department_id",
@@ -61,14 +78,12 @@ module.exports = {
 
     let table = [];
     for (var i = 0; i < role_data.length; i++) {
-      let e = {};
-      const o = await get_query("employee", "role_id", role_data[i].id);
-      e.id = o[0].id;
-      e.first_name = o[0].first_name;
-      e.last_name = o[0].last_name;
-      e.role_id = o[0].role_id;
-      e.manager_id = o[0].manager_id;
-      table.push(e);
+      table.push({
+        id: role_data[i].id,
+        title: role_data[i].title,
+        salary: role_data[i].salary,
+        department_id: role_data[i].department_id,
+      });
     }
     console.table(table);
   },
@@ -89,5 +104,13 @@ module.exports = {
   view_department: async function view_department() {
     const department_list = await get_department_list();
     console.table(department_list);
+  },
+  remove_department: async function remove_department() {
+    const department_list = await get_department_list();
+    const department_id = await generate_question(
+      "Choose Department",
+      department_list
+    );
+    const remove = remove_department_helper(department_id);
   },
 };
