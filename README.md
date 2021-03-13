@@ -1,6 +1,6 @@
 # Employee_Tracker
 
-[Video Link](https://drive.google.com/drive/u/1/folders/1CSAjoRadzUxjGDnACDpZo3DgbW7ZG6y4)
+[Video Link](https://drive.google.com/drive/folders/1CSAjoRadzUxjGDnACDpZo3DgbW7ZG6y4?usp=sharing)
 
 \*\*Make sure to allow cookies in order to download and/or watch the video on google drive.\*\*
 
